@@ -1,0 +1,133 @@
+
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ project_name }}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% tailwind_css %}
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Dark Mode Script -->
+    <script>
+        (function() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+        })();
+    </script>
+
+    <script src="{% static 'js/main.js' %}" type="module"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body>
+<div class="drawer drawer-open">
+  <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content p-4">
+    {% block content %}{% endblock %}
+  </div>
+
+  <div class="drawer-side is-drawer-close:overflow-visible">
+    <label for="my-drawer-4" class="drawer-overlay" aria-label="close sidebar"></label>
+    <div class="is-drawer-close:w-14 is-drawer-open:w-64 bg-base-200 flex flex-col items-start min-h-full">
+      <ul class="menu w-full grow">
+
+        {# Dashboard #}
+        <li>
+          <a href="{% url 'dashboard' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Dashboard">
+            {% include 'theme/_icon.html' with svg="<path d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'></path><path d='M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'></path>" hover=True %}
+            <span class="is-drawer-close:hidden">Dashboard</span>
+          </a>
+        </li>
+
+        {# Browse Antiques #}
+        <li>
+          <a href="{% url 'antiques:antique-list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Browse Antiques">
+            {% include 'theme/_icon.html' with svg="<path stroke-linecap='round' stroke-linejoin='round' d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z'>" hover=True %}
+            <span class="is-drawer-close:hidden">Browse Antiques</span>
+          </a>
+        </li>
+
+        {# Wishlist #}
+        {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'antiques:wishlist-list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Wishlists">
+            {% include 'theme/_icon.html' with svg="<path stroke-linecap='round' stroke-linejoin='round' d='M4.318 6.318a4.5 4.5 0 0 0 0 6.364L12 20.364l7.682-7.682a4.5 4.5 0 0 0-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 0 0-6.364 0z'>" hover=True %}
+            <span class="is-drawer-close:hidden">My Wishlists</span>
+          </a>
+        </li>
+
+        {% endif %}
+
+
+
+
+<li>
+  <a href="{% url 'blog:blogpost-list' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Blog">
+    {% include 'theme/_icon.html' with svg="<path stroke-linecap='round' stroke-linejoin='round' d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'/>" hover=True %}
+    <span class="is-drawer-close:hidden">Blog</span>
+  </a>
+</li>
+        {# Settings #}
+        {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'users:settings' %}" class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
+            {% include 'theme/_icon.html' with svg="<path d='M20 7h-9'></path><path d='M14 17H5'></path><circle cx='17' cy='17' r='3'></circle><circle cx='7' cy='7' r='3'></circle>" hover=True %}
+            <span class="is-drawer-close:hidden">Settings</span>
+          </a>
+        </li>
+        {% endif %}
+
+      </ul>
+
+      {# Drawer toggle button #}
+      <div class="m-2 is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Open">
+        <label for="my-drawer-4" class="btn btn-ghost btn-circle drawer-button is-drawer-open:rotate-y-180">
+          {% include 'theme/_icon.html' with svg="<path d='M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z'></path><path d='M9 4v16'></path><path d='M14 10l2 2l-2 2'></path>" hover=True %}
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.icon-hover:hover {
+  @apply text-primary scale-110 transition-transform duration-200;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  {% if messages %}
+    {% for message in messages %}
+      let color;
+      switch ("{{ message.tags }}") {
+        case "success": color = "#4CAF50"; break;
+        case "error": color = "#f44336"; break;
+        case "warning": color = "#ff9800"; break;
+        case "info": color = "#2196F3"; break;
+        case "debug": color = "#9E9E9E"; break;
+        default: color = "#323232";
+      }
+      Toastify({
+        text: "{{ message|escapejs }}",
+        duration: 4000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: color,
+        close: true,
+        stopOnFocus: true
+      }).showToast();
+    {% endfor %}
+  {% endif %}
+});
+</script>
+</body>
+</html>

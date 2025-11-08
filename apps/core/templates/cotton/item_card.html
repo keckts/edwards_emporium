@@ -1,0 +1,62 @@
+<c-vars
+  image_url
+  title
+  detail_url
+  show_badges="True"
+  show_metadata="True"
+/>
+
+<div class="card bg-base-100 shadow cursor-pointer hover:shadow-lg transition flex flex-col"
+     onclick="window.location.href='{{ detail_url }}'">
+
+  <!-- Image -->
+  <figure class="h-48 w-full bg-gray-100 overflow-hidden">
+    {% if image_url %}
+      <img src="{{ image_url }}" alt="{{ title }}"
+           class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+    {% else %}
+      <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
+        {% if c_slot.placeholder_icon %}
+          {{ c_slot.placeholder_icon }}
+        {% else %}
+          <!-- Default placeholder icon -->
+          <svg class="w-16 h-16 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+          </svg>
+        {% endif %}
+      </div>
+    {% endif %}
+  </figure>
+
+  <!-- Card Body -->
+  <div class="card-body p-4 flex flex-col flex-1 justify-between">
+    <div>
+      <!-- Badges Section -->
+      {% if show_badges == "True" %}
+        <div class="flex items-center gap-2 mb-2">
+          {{ c_slot.badges }}
+        </div>
+      {% endif %}
+
+      <!-- Title -->
+      <h2 class="card-title text-md line-clamp-2">{{ title }}</h2>
+
+      <!-- Description -->
+      <div class="text-sm text-gray-600 line-clamp-3 mb-2">
+        {{ c_slot.description }}
+      </div>
+
+      <!-- Metadata Section -->
+      {% if show_metadata == "True" %}
+        <div class="flex items-center gap-4 text-sm text-gray-500 mt-2">
+          {{ c_slot.metadata }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Footer/Actions -->
+    <div class="flex items-center justify-between pt-3">
+      {{ c_slot.footer }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,94 @@
+{% extends 'theme/base.html' %}
+{% load static %}
+
+{% block title %}My Wishlists{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-4xl font-bold mb-2">My Wishlists</h1>
+      <p class="text-base-content/60">Manage your wishlist collections</p>
+    </div>
+    <a href="{% url 'antiques:wishlist-create' %}" class="btn btn-neutral">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Create Wishlist
+    </a>
+  </div>
+
+  <!-- Wishlists Grid -->
+  {% if object_list %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for wishlist in object_list %}
+    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer" onclick="window.location.href='{% url 'antiques:wishlist-detail' wishlist.pk %}'">
+      <div class="card-body">
+        <!-- Wishlist Icon & Title -->
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="bg-red-100 p-3 rounded-lg">
+              <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">{{ wishlist.title }}</h2>
+              <p class="text-sm text-base-content/60">
+                {{ wishlist.antiques.count }} item{{ wishlist.antiques.count|pluralize }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions justify-end" onclick="event.stopPropagation();">
+          <button
+            hx-get="{% url 'antiques:wishlist-delete' wishlist.pk %}"
+            hx-target="body"
+            hx-swap="beforeend"
+            class=" text-white btn btn-sm btn-error">
+            Delete
+          </button>
+          <a href="{% url 'antiques:wishlist-detail' wishlist.id %}" class="btn btn-sm btn-neutral">
+            View
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-8">
+    <div class="join">
+      {% if page_obj.has_previous %}
+        <a href="?page=1" class="join-item btn btn-sm">«</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">‹</a>
+      {% endif %}
+      <button class="join-item btn btn-sm btn-active">Page {{ page_obj.number }}</button>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">›</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="join-item btn btn-sm">»</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Empty State -->
+  <div class="text-center py-16">
+    <h3 class="text-2xl font-bold mb-2">No wishlists yet</h3>
+    <p class="text-base-content/60 mb-6">Create your first wishlist to start organizing your favorite antiques</p>
+    <a href="{% url 'antiques:wishlist-create' %}" class="btn btn-neutral">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Create Your First Wishlist
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+Hello,
+
+Thank you for signing up!
+
+To complete your registration and verify your email address, please click the link below:
+
+{{ activate_url }}
+
+This link will expire in 3 days.
+
+If you didn't create an account, you can safely ignore this email.
+
+Best regards,
+The Team

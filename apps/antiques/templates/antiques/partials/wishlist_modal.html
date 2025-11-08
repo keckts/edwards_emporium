@@ -1,0 +1,113 @@
+
+{% comment %}
+Wishlist modal for selecting or creating wishlists.
+- Clicking the "X" or Close closes the modal.
+- HTMX POST adds the antique to the wishlist.
+- Success message shown inline.
+{% endcomment %}
+
+<!-- Modal toggle checkbox -->
+<input type="checkbox" id="wishlist-modal-toggle" class="modal-toggle" />
+
+<!-- Modal -->
+<div id="wishlist-modal" class="modal">
+  <div class="modal-box max-w-md bg-white relative">
+
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg">Save to Wishlist</h3>
+      <label for="wishlist-modal-toggle" class="btn btn-sm">×</label>
+    </div>
+
+    <!-- Create New Wishlist -->
+    <div class="mb-4 text-right">
+      <a href="{% url 'antiques:wishlist-create' %}" class="btn btn-neutral btn-sm">
+        + New Wishlist
+      </a>
+    </div>
+
+    <!-- Success Message -->
+    <div id="wishlist-success-message">
+      {% if message %}
+        <div class="alert alert-success mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Antique Preview -->
+    <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg mb-4">
+      {% if antique.images %}
+        {% with first_image=antique.images.first %}
+          <img src="{{ first_image.image.url }}" alt="{{ antique.title }}" class="w-16 h-16 object-cover rounded" />
+        {% endwith %}
+      {% else %}
+        <div class="w-16 h-16 bg-base-300 rounded flex items-center justify-center">
+          <svg class="w-8 h-8 text-base-content opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+      {% endif %}
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold truncate">{{ antique.title }}</p>
+        <p class="text-sm text-gray-600">${{ antique.price }}</p>
+      </div>
+    </div>
+
+    <!-- Wishlist List -->
+    {% if has_wishlists %}
+      <div class="space-y-2 max-h-60 overflow-y-auto">
+        {% for item in wishlist_statuses %}
+          <div class="card card-compact bg-base-100 shadow hover:shadow-lg cursor-pointer transition-all">
+            <div class="flex justify-between items-center p-3">
+              <div class="flex-1">
+                <h4 class="font-medium">{{ item.wishlist.title }}</h4>
+                <p class="text-sm text-gray-500">
+                  {{ item.wishlist.antiques.count }} item{{ item.wishlist.antiques.count|pluralize }}
+                </p>
+              </div>
+
+              {% if not item.contains_antique %}
+                <form method="POST"
+                      hx-post="{% url 'antiques:wishlist-add-antique' item.wishlist.id antique.id %}"
+                      hx-swap="none"
+                      hx-on="htmx:afterRequest: document.getElementById('wishlist-modal-toggle').click()">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-neutral btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4v16m8-8H4"/>
+                    </svg>
+                  </button>
+                </form>
+              {% else %}
+                <span class="text-gray-400 font-bold">✔</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-6">
+        <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <p class="text-gray-600 mb-4">You don't have any wishlists yet.</p>
+        <a href="{% url 'antiques:wishlist-create' %}" class="btn btn-neutral btn-sm">
+          + Create Wishlist
+        </a>
+      </div>
+    {% endif %}
+
+    <!-- Modal Action -->
+    <div class="modal-action">
+      <label for="wishlist-modal-toggle" class="btn btn-neutral">Close</label>
+    </div>
+  </div>
+</div>

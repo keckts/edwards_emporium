@@ -1,0 +1,39 @@
+<nav class="bg-white shadow-lg {{ c_attrs.class }}" x-data="{ mobileOpen: false }">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a href="{{ logo_url|default:'/' }}" class="text-2xl font-bold text-gray-800">
+                    {{ logo_text|default:"Logo" }}
+                </a>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-6">
+                {{ slot }}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button
+                @click="mobileOpen = !mobileOpen"
+                class="md:hidden text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    <path x-show="mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div
+            x-show="mobileOpen"
+            x-cloak
+            @click.away="mobileOpen = false"
+            class="md:hidden pb-4"
+            x-transition>
+            <div class="flex flex-col space-y-2">
+                {{ slot }}
+            </div>
+        </div>
+    </div>
+</nav>

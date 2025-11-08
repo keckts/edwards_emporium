@@ -1,0 +1,69 @@
+{% comment %}
+Reusable search and filter component for list views.
+
+Required context:
+- search_placeholder: Placeholder text for search input (default: "Search...")
+- filter_fields: List of dicts with filter field configurations
+  Example: [
+    {"name": "type", "label": "Type", "type": "select", "options": antique_types, "current": request.GET.type},
+    {"name": "show_sold", "label": "Show Sold", "type": "toggle", "current": request.GET.show_sold}
+  ]
+- object_count: Number of objects being displayed
+- object_name: Name of the object type (e.g., "antique", "blog post")
+{% endcomment %}
+
+<div class="card bg-base-100 shadow mb-8 p-4">
+  <div class="grid grid-cols-1 {% if filter_fields|length == 1 %}md:grid-cols-2{% elif filter_fields|length == 2 %}md:grid-cols-3{% else %}md:grid-cols-4{% endif %} gap-4">
+
+    <!-- Search Input -->
+    <div class="form-control w-full">
+      <label class="label">
+        <span class="label-text">Search</span>
+      </label>
+      <input
+        type="text"
+        placeholder="{{ search_placeholder|default:'Search...' }}"
+        class="input input-bordered w-full"
+        id="searchInput"
+        value="{{ request.GET.search|default:'' }}"
+      >
+    </div>
+
+    <!-- Dynamic Filter Fields -->
+    {% for field in filter_fields %}
+      {% if field.type == "select" %}
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">{{ field.label }}</span>
+          </label>
+          <select id="{{ field.name }}Filter" class="select select-bordered w-full">
+            <option value="">All {{ field.label }}s</option>
+            {% for option in field.options %}
+              <option value="{{ option }}" {% if field.current == option %}selected{% endif %}>
+                {{ option }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      {% elif field.type == "toggle" %}
+        <div class="form-control flex items-center justify-start mt-4 md:mt-0">
+          <label class="cursor-pointer label flex items-center gap-2">
+            <input
+              type="checkbox"
+              class="toggle toggle-primary"
+              id="{{ field.name }}Toggle"
+              {% if field.current == 'true' %}checked{% endif %}
+            >
+            <span class="label-text">{{ field.label }}</span>
+          </label>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="divider"></div>
+
+  <p class="text-sm text-gray-500">
+    Showing <span class="font-semibold text-gray-900">{{ object_count }}</span> {{ object_name }}{{ object_count|pluralize }}
+  </p>
+</div>

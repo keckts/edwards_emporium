@@ -1,0 +1,55 @@
+{% extends 'core/list_view.html' %}
+{% load static cotton %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<script type="module" src="{% static 'js/blogFilter.js' %}"></script>
+{% endblock %}
+
+{% block item_card %}
+<c-item-card
+    image_url="{% if item.image %}{{ item.image.url }}{% else %}{% endif %}"
+  title="{{ item.title }}"
+  detail_url="{{ item.get_absolute_url }}"
+>
+  <c-slot name="placeholder_icon">
+    <svg class="w-16 h-16 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+      <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+    </svg>
+  </c-slot>
+
+  <c-slot name="badges">
+    {% if item.status == 'published' %}
+      <span class="badge badge-success badge-sm">Published</span>
+    {% else %}
+      <span class="badge badge-warning badge-sm">Draft</span>
+    {% endif %}
+    {% if item.topic %}
+      <span class="badge badge-outline badge-sm">{{ item.topic }}</span>
+    {% endif %}
+  </c-slot>
+
+  <c-slot name="metadata">
+    <span class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      {{ item.created_at|date:"M d, Y" }}
+    </span>
+    <span class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ item.get_reading_time }} min read
+    </span>
+  </c-slot>
+
+  <c-slot name="footer">
+    <button class="btn btn-sm btn-neutral"
+            onclick="event.stopPropagation(); window.location.href='{{ item.get_absolute_url }}'">
+      Read More
+    </button>
+  </c-slot>
+</c-item-card>
+{% endblock %}

@@ -1,0 +1,444 @@
+{% extends 'theme/base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit {{ object.title }}{% else %}Add New Antique{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+body {
+  background-color: white;
+}
+</style>
+<div class="container mx-auto px-4 py-8 max-w-4xl bg-white">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-black">
+        {% if object %}
+          Edit Antique
+        {% else %}
+          Add New Antique
+        {% endif %}
+      </h1>
+      <p class="text-gray-600 mt-1">
+        {% if object %}
+          Update the details for {{ object.title }}
+        {% else %}
+          Fill in the details to add a new antique to your collection
+        {% endif %}
+      </p>
+    </div>
+    <a href="{% if object %}{% url 'antiques:detail' object.short_id object.slug %}{% else %}{% url 'antiques:list' %}{% endif %}" class="px-4 py-2 border-2 border-black rounded hover:bg-gray-100 transition flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+      Cancel
+    </a>
+  </div>
+
+  <!-- Form -->
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Display form errors -->
+    {% if form.errors %}
+    <div class="border-2 border-red-600 bg-red-50 p-4 rounded-lg flex items-center gap-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="text-red-600 font-semibold">Please correct the errors below.</span>
+    </div>
+    {% endif %}
+
+    <!-- Basic Information Card -->
+    <div class="border-2 border-black bg-white shadow-xl rounded-lg">
+      <div class="p-6">
+        <h2 class="text-xl font-bold text-black mb-4">Basic Information</h2>
+
+        <!-- Title -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Title <span class="text-error">*</span></span>
+          </label>
+          {{ form.title }}
+          {% if form.title.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ form.title.errors.0 }}</span>
+          </label>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Description</span>
+            <span class="label-text-alt text-base-content/60">Brief overview for listings</span>
+          </label>
+          {{ form.description }}
+          {% if form.description.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ form.description.errors.0 }}</span>
+          </label>
+          {% endif %}
+        </div>
+
+        <!-- Type and Price Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Type -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Type <span class="text-error">*</span></span>
+            </label>
+            {{ form.type_of_antique }}
+            {% if form.type_of_antique.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.type_of_antique.errors.0 }}</span>
+            </label>
+            {% endif %}
+          </div>
+
+          <!-- Price -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Price <span class="text-error">*</span></span>
+            </label>
+            {{ form.price }}
+            {% if form.price.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.price.errors.0 }}</span>
+            </label>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Information Card -->
+    <div class="border-2 border-black bg-white shadow-xl rounded-lg">
+      <div class="p-6">
+        <h2 class="text-xl font-bold text-black mb-4">Detailed Information</h2>
+
+        <!-- Content -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Content</span>
+            <span class="label-text-alt text-base-content/60">Detailed description</span>
+          </label>
+          {{ form.content }}
+          {% if form.content.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ form.content.errors.0 }}</span>
+          </label>
+          {% endif %}
+        </div>
+
+        <!-- Dimensions and Quantity Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dimensions -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Dimensions</span>
+            </label>
+            {{ form.dimensions }}
+            {% if form.dimensions.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.dimensions.errors.0 }}</span>
+            </label>
+            {% endif %}
+          </div>
+
+          <!-- Quantity -->
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold">Quantity <span class="text-error">*</span></span>
+            </label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.quantity.errors.0 }}</span>
+            </label>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Additional Information</span>
+          </label>
+          {{ form.additional_info }}
+          {% if form.additional_info.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ form.additional_info.errors.0 }}</span>
+          </label>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Options Card (Collapsible) -->
+    <div class="border-2 border-black bg-white shadow-xl rounded-lg">
+      <details class="group">
+        <summary class="p-6 cursor-pointer text-xl font-bold text-black flex items-center justify-between">
+          <span>Advanced Options</span>
+          <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </summary>
+        <div class="px-6 pb-6">
+          <!-- Slug -->
+          <div class="form-control">
+            <label class="block font-semibold text-black mb-2">
+              Slug
+              <span class="text-sm font-normal text-gray-600 ml-2">URL-friendly identifier (auto-generated if empty)</span>
+            </label>
+            {{ form.slug }}
+            {% if form.slug.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ form.slug.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Image Upload Section -->
+    <div class="card bg-white border-2 border-black shadow-xl">
+      <div class="card-body">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="card-title text-xl text-black">Images</h2>
+          <div class="badge bg-black text-white border-black">
+            <span id="image-count">{% if object %}{{ object.images.count }}{% else %}0{% endif %}</span> / 10 max
+          </div>
+        </div>
+
+        <!-- Batch Upload Section -->
+        <div class="border-2 border-black rounded-lg p-4 mb-4 bg-gray-50">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-semibold text-black">Batch Upload (3-4 images at once)</span>
+            </label>
+            <input
+              type="file"
+              id="batch-upload"
+              multiple
+              accept="image/jpeg,image/png,image/gif"
+              class="file-input file-input-bordered border-black w-full bg-white text-black"
+            />
+            <label class="label">
+              <span class="label-text-alt text-gray-600">Select up to 4 images at once</span>
+            </label>
+          </div>
+          <div id="batch-preview" class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2"></div>
+        </div>
+
+        {{ image_formset.management_form }}
+
+        <!-- Carousel for Image Forms -->
+        {% if object and object.images.exists %}
+        <div class="relative">
+          <div class="carousel w-full" id="image-carousel">
+            {% for form in image_formset %}
+            {% if form.instance.pk %}
+            <div id="img-slide{{ forloop.counter }}" class="carousel-item relative w-full">
+              <div class="w-full border-2 border-black rounded-lg p-4 bg-gray-50">
+                <div class="flex flex-col items-center gap-4">
+                  <!-- Preview -->
+                  <div class="w-full h-64">
+                    {% if form.instance.pk and form.instance.image %}
+                    <img src="{{ form.instance.image.url }}" alt="Preview" class="w-full h-full object-contain rounded-lg border-2 border-gray-300">
+                    {% endif %}
+                  </div>
+
+                  <!-- Form Fields -->
+                  <div class="w-full">
+                    {{ form.id }}
+                    <div class="form-control">
+                      <label class="label">
+                        <span class="label-text text-sm text-black">Replace image:</span>
+                      </label>
+                      {{ form.image }}
+                    </div>
+                  </div>
+
+                  <!-- Delete Checkbox -->
+                  <label class="cursor-pointer flex items-center gap-2 border-2 border-red-600 bg-red-50 px-4 py-2 rounded-lg hover:bg-red-100 transition">
+                    {{ form.DELETE }}
+                    <span class="label-text font-semibold text-red-600">Delete this image</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Carousel Navigation -->
+          {% if object.images.count > 1 %}
+          <div class="flex justify-center gap-2 mt-4">
+            {% for form in image_formset %}
+            {% if form.instance.pk %}
+            <a href="#img-slide{{ forloop.counter }}" class="btn btn-xs bg-black text-white border-black hover:bg-gray-800">{{ forloop.counter }}</a>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+          <svg class="w-16 h-16 mx-auto text-gray-400 mb-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+          </svg>
+          <p class="text-gray-600">No images yet. Use batch upload above to add images.</p>
+        </div>
+
+        <!-- Hidden formset for new uploads -->
+        <div id="image-formset" class="hidden">
+          {% for form in image_formset %}
+          {% if not form.instance.pk %}
+          <div class="image-form-row">
+            {{ form.id }}
+            {{ form.image }}
+            {{ form.DELETE }}
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <p class="text-xs text-gray-600 mt-4">
+          Supported formats: JPG, PNG, GIF. Maximum 10 images per antique.
+        </p>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="border-2 border-black bg-gray-50 shadow-xl rounded-lg">
+      <div class="p-6">
+        <div class="flex gap-4 justify-end">
+          <a href="{% if object %}{% url 'antiques:detail' object.short_id object.slug %}{% else %}{% url 'antiques:list' %}{% endif %}" class="px-6 py-3 border-2 border-black rounded hover:bg-gray-100 transition font-semibold">
+            Cancel
+          </a>
+          <button type="submit" class="bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition border-2 border-black flex items-center gap-2 font-semibold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {% if object %}Update Antique{% else %}Create Antique{% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const batchUpload = document.getElementById('batch-upload');
+  const batchPreview = document.getElementById('batch-preview');
+  const formsetContainer = document.getElementById('image-formset');
+  const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
+  const maxForms = 10;
+  let selectedFiles = [];
+
+  // Handle batch upload
+  batchUpload.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+
+    // Limit to 4 files
+    if (files.length > 4) {
+      alert('Please select maximum 4 images at once.');
+      batchUpload.value = '';
+      return;
+    }
+
+    // Check total count
+    const currentCount = parseInt(document.getElementById('image-count').textContent);
+    if (currentCount + files.length > maxForms) {
+      alert(`You can only add ${maxForms - currentCount} more images. Maximum is ${maxForms} images per antique.`);
+      batchUpload.value = '';
+      return;
+    }
+
+    // Clear preview
+    batchPreview.innerHTML = '';
+    selectedFiles = files;
+
+    // Show previews
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'relative border-2 border-gray-300 rounded-lg overflow-hidden';
+        previewDiv.innerHTML = `
+          <img src="${e.target.result}" class="w-full h-32 object-cover">
+          <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white text-xs p-1 text-center">
+            ${file.name}
+          </div>
+        `;
+        batchPreview.appendChild(previewDiv);
+      };
+      reader.readAsDataURL(file);
+
+      // Add file to formset
+      addFileToFormset(file, index);
+    });
+
+    // Update counter
+    updateImageCount();
+  });
+
+  function addFileToFormset(file, index) {
+    const currentFormCount = parseInt(totalForms.value);
+    const formRows = formsetContainer.querySelectorAll('.image-form-row');
+
+    if (formRows.length === 0) {
+      // Create a new form if none exist
+      createNewFormRow(currentFormCount, file);
+      totalForms.value = currentFormCount + 1;
+    } else {
+      // Find an empty form or create new one
+      let emptyForm = null;
+      formRows.forEach(form => {
+        const input = form.querySelector('input[type="file"]');
+        if (input && !input.files.length) {
+          emptyForm = form;
+        }
+      });
+
+      if (emptyForm) {
+        const input = emptyForm.querySelector('input[type="file"]');
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+      } else {
+        createNewFormRow(currentFormCount, file);
+        totalForms.value = currentFormCount + 1;
+      }
+    }
+  }
+
+  function createNewFormRow(index, file) {
+    const div = document.createElement('div');
+    div.className = 'image-form-row';
+    div.innerHTML = `
+      <input type="hidden" name="form-${index}-id" id="id_form-${index}-id">
+      <input type="file" name="form-${index}-image" id="id_form-${index}-image" accept="image/*">
+      <input type="checkbox" name="form-${index}-DELETE" id="id_form-${index}-DELETE">
+    `;
+
+    formsetContainer.appendChild(div);
+
+    // Set the file
+    const input = div.querySelector('input[type="file"]');
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    input.files = dataTransfer.files;
+  }
+
+  function updateImageCount() {
+    const currentCount = parseInt(document.getElementById('image-count').textContent);
+    const newFiles = selectedFiles.length;
+    document.getElementById('image-count').textContent = currentCount + newFiles;
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'theme/base.html' %}
+
+{% block title %}{% if object %}Edit {{ object.title }}{% else %}Create Wishlist{% endif %}{% endblock %}
+
+{% block content %}
+{% include 'core/partials/form_card.html' with form=form form_title=form_title form_description=form_description submit_text=submit_text cancel_url=cancel_url back_url=back_url back_text="Back to Wishlists" %}
+{% endblock %}

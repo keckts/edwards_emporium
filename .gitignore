@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django / local files
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+static_root/
+*.sqlite3
+local_settings.py
+
+# Environment variables
+.env
+*.env
+
+# IDE / Editor junk
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Node / Tailwind / npm builds
+node_modules/
+npm-debug.log
+package-lock.json
+pnpm-lock.yaml
+dist/
+build/
+.bundle/
+
+# Coverage / test reports
+.coverage
+htmlcov/
+*.cover
+*.py,cover
+*.pid
+*.seed
+*.log
+*.csv
+
+# Byte-compiled / compiled files
+*.so
+*.dll
+*.exe
+*.class
+
+# Migrations (optional)
+# Uncomment below if you want to exclude auto-generated migrations
+# **/migrations/
+# !**/migrations/__init__.py
+
+# Sentry / error tracking
+.sentryclirc

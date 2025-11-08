@@ -1,0 +1,602 @@
+{% extends 'theme/base.html' %}
+
+{% block content %}
+
+<div class="container mx-auto px-4 py-8 max-w-4xl" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-init="$watch('darkMode', val => { localStorage.setItem('darkMode', val); document.documentElement.setAttribute('data-theme', val ? 'dark' : 'light'); }); document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-bold">Settings</h1>
+
+        <!-- Dark Mode Toggle -->
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-medium">Dark Mode</span>
+            <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                x-model="darkMode"
+            />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Sidebar - Profile Overview -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-200 shadow-xl sticky top-4">
+                <div class="card-body items-center text-center">
+                    <!-- Avatar -->
+                    <div class="avatar placeholder mb-4">
+                        <div class="bg-primary text-primary-content rounded-full w-32 h-32 flex items-center justify-center">
+                            <span class="text-5xl font-bold">{{ user.email|slice:':1'|upper }}</span>
+
+                        </div>
+                    </div>
+
+                    <h2 class="card-title text-2xl">{{ user.email|truncatechars:12 }}</h2>
+
+                    {% if user.get_full_name %}
+                        <p class="text-base-content/70">{{ user.get_full_name }}</p>
+                    {% endif %}
+
+                        <p class="text-sm text-base-content/60">{{ user.email|truncatechars:33 }}</p>
+
+                    <div class="divider my-2"></div>
+
+                    <div class="stats stats-vertical shadow-sm w-full">
+                        <div class="stat py-3">
+                            <div class="stat-title text-xs">Member Since</div>
+                            <div class="stat-value text-lg">{{ user.date_joined|date:"M Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content - Edit Profile Form -->
+        <div class="lg:col-span-2">
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl mb-4">Profile Information</h2>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Account Information -->
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    Account Details
+                                </h3>
+
+                                <!-- Email (Read-only) with Verification Status -->
+                                <div class="form-control mb-4">
+                                    <label class="label">
+                                        <span class="label-text font-medium">Email</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value="{{ user.email }}"
+                                        class="input input-bordered w-full input-disabled"
+                                        disabled
+                                    />
+
+                                    <!-- Email Verification Status -->
+                                    <div class="mt-3">
+                                        {% if user.emailaddress_set.all.0.verified %}
+                                            <!-- Email Verified Badge -->
+                                            <div class="flex items-center gap-2 p-3 bg-green-50 border-2 border-green-500 rounded-lg">
+                                                <svg class="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <div>
+                                                    <p class="text-sm font-semibold text-green-900">Email Verified</p>
+                                                    <p class="text-xs text-green-700">Your email address has been confirmed</p>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <!-- Email Not Verified Alert -->
+                                            <div class="flex flex-col gap-3 p-4 bg-yellow-50 border-2 border-yellow-500 rounded-lg">
+                                                <div class="flex items-start gap-3">
+                                                    <svg class="w-6 h-6 text-black flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                    </svg>
+                                                    <div class="flex-1">
+                                                        <p class="text-sm font-semibold text-black">Email Not Verified</p>
+                                                        <p class="text-xs text-black mt-1 dark:text-black">Please verify your email address to access all features</p>
+                                                    </div>
+                                                </div>
+                                                <div x-data="resendEmailVerification()" x-init="init()">
+                                                    <button
+                                                        type="button"
+                                                        @click="sendVerificationCode()"
+                                                        class="btn btn-sm btn-warning gap-2"
+                                                        :disabled="cooldownActive"
+                                                        :class="{ 'btn-disabled opacity-50 cursor-not-allowed': cooldownActive }"
+                                                    >
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                        </svg>
+                                                        <span x-show="!cooldownActive">Verify Email</span>
+                                                        <span x-show="cooldownActive" x-text="`Wait ${cooldownSeconds}s`"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- First Name -->
+                                <div class="form-control mb-4">
+                                    <label class="label" for="{{ form.first_name.id_for_label }}">
+                                        <span class="label-text font-medium">First Name</span>
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <label class="label">
+                                            <span class="label-text-alt text-error">{{ form.first_name.errors.0 }}</span>
+                                        </label>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Last Name -->
+                                <div class="form-control mb-4">
+                                    <label class="label" for="{{ form.last_name.id_for_label }}">
+                                        <span class="label-text font-medium">Last Name</span>
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <label class="label">
+                                            <span class="label-text-alt text-error">{{ form.last_name.errors.0 }}</span>
+                                        </label>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <!-- Profile Details -->
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                                    Personal Information
+                                </h3>
+
+                                <!-- Bio -->
+                                <div class="form-control mb-4">
+                                    <label class="label" for="{{ form.bio.id_for_label }}">
+                                        <span class="label-text font-medium">Bio</span>
+                                    </label>
+                                    {{ form.bio }}
+                                    {% if form.bio.errors %}
+                                        <label class="label">
+                                            <span class="label-text-alt text-error">{{ form.bio.errors.0 }}</span>
+                                        </label>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Location -->
+                                <div class="form-control mb-4">
+                                    <label class="label" for="{{ form.location.id_for_label }}">
+                                        <span class="label-text font-medium">Location</span>
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <label class="label">
+                                            <span class="label-text-alt text-error">{{ form.location.errors.0 }}</span>
+                                        </label>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Birth Date -->
+                                <div class="form-control mb-4">
+                                    <label class="label" for="{{ form.birth_date.id_for_label }}">
+                                        <span class="label-text font-medium">Birth Date</span>
+                                    </label>
+                                    {{ form.birth_date }}
+                                    {% if form.birth_date.errors %}
+                                        <label class="label">
+                                            <span class="label-text-alt text-error">{{ form.birth_date.errors.0 }}</span>
+                                        </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="card-actions justify-end mt-6 gap-3">
+                            <a href="{% url 'dashboard' %}" class="btn btn-ghost">Cancel</a>
+                            <button type="submit" class="btn btn-neutral">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Additional Settings Cards -->
+            <div class="card bg-base-200 shadow-xl mt-6">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl mb-4">Account Actions</h2>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 bg-base-300 rounded-lg">
+                            <div>
+                                <h3 class="font-semibold">Change Password</h3>
+                                <p class="text-sm text-base-content/70">Update your password to keep your account secure</p>
+                            </div>
+                            <a href="{% url 'account_change_password' %}" class="btn btn-outline btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                Change Password
+                            </a>
+                        </div>
+
+                        <div class="flex justify-between items-center p-4 bg-base-300 rounded-lg">
+                            <div>
+                                <h3 class="font-semibold text-warning">Logout</h3>
+                                <p class="text-sm text-base-content/70">Sign out of your account</p>
+                            </div>
+                            <button class="btn btn-warning btn-sm" onclick="logout_modal.showModal()">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+
+                        <div class="flex justify-between items-center p-4 bg-base-300 rounded-lg">
+                            <div>
+                                <h3 class="font-semibold text-error">Delete Account</h3>
+                                <p class="text-sm text-base-content/70">Permanently delete your account and all data</p>
+                            </div>
+                            <button class="btn btn-error btn-sm" onclick="delete_account_modal.showModal()">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<dialog id="logout_modal" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-warning">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Confirm Logout
+        </h3>
+        <p class="py-4">Are you sure you want to logout? You will need to sign in again to access your account.</p>
+        <div class="modal-action">
+            <form method="dialog" class="flex gap-2">
+                <button class="btn btn-ghost">Cancel</button>
+            </form>
+            <form method="post" action="{% url 'users:logout' %}">
+              {% csrf_token %}
+            <button class="btn btn-warning" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Yes, Logout
+            </button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Delete Account Confirmation Modal -->
+<dialog id="delete_account_modal" class="modal">
+    <div class="modal-box border-2 border-error">
+        <h3 class="font-bold text-lg flex items-center gap-2 text-error">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Permanently Delete Account
+        </h3>
+        <div class="py-4 space-y-3">
+            <p class="font-semibold">This action cannot be undone!</p>
+            <p>Deleting your account will:</p>
+            <ul class="list-disc list-inside space-y-1 text-sm text-base-content/80">
+                <li>Permanently delete your profile and all associated data</li>
+                <li>Remove all your personal information from our system</li>
+                <li>Log you out immediately</li>
+            </ul>
+            <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="font-semibold">Warning: This action is irreversible!</span>
+            </div>
+        </div>
+        <div class="modal-action">
+            <form method="dialog">
+                <button class="btn btn-ghost">Cancel</button>
+            </form>
+            <form method="post" action="{% url 'users:delete_account' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Yes, Delete My Account
+                </button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Email Verification Modal -->
+<dialog id="email_verification_modal" class="modal" x-data="verificationModal()">
+    <div class="modal-box max-w-md">
+        <h3 class="font-bold text-2xl flex items-center gap-3 mb-4">
+            <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            Verify Your Email
+        </h3>
+
+        <p class="text-base-content/70 mb-6">
+            We've sent a 6-digit verification code to your email. Enter it below to verify your email address.
+        </p>
+
+        <!-- Code Input -->
+        <div class="form-control mb-4 justify-center gap-2">
+            <label class="label">
+                <span class="label-text font-medium">Verification Code</span>
+            </label>
+            <br>
+            <input
+                type="text"
+                x-model="code"
+                @input="code = code.replace(/[^0-9]/g, '').slice(0, 6)"
+                @keypress.enter="verifyCode()"
+                maxlength="6"
+                placeholder="000000"
+                class="input input-bordered input-lg text-center text-2xl tracking-widest font-mono"
+                :class="{ 'input-error': errorMessage }"
+                autofocus
+            />
+            <label class="label" x-show="errorMessage">
+                <span class="label-text-alt text-error" x-text="errorMessage"></span>
+            </label>
+        </div>
+
+        <!-- Success Message -->
+        <div x-show="successMessage" class="alert alert-success mb-4" x-transition>
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span x-text="successMessage"></span>
+        </div>
+
+        <div class="modal-action flex gap-2">
+            <button
+                type="button"
+                class="btn btn-ghost flex-1"
+                @click="closeModal()"
+                :disabled="isVerifying"
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="btn btn-neutral flex-1"
+                @click="verifyCode()"
+                :disabled="code.length !== 6 || isVerifying"
+                :class="{ 'loading': isVerifying }"
+            >
+                <span x-show="!isVerifying">Verify</span>
+                <span x-show="isVerifying">Verifying...</span>
+            </button>
+        </div>
+
+        <p class="text-xs text-base-content/60 text-center mt-4">
+            Didn't receive the code? Check your spam folder or wait for the cooldown to request a new one.
+        </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button type="button" @click="closeModal()">close</button>
+    </form>
+</dialog>
+
+
+
+
+
+<script>
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+window.resendEmailVerification = function () {
+    return {
+        cooldownActive: false,
+        cooldownSeconds: 1,
+        intervalId: null,
+
+        init() {
+            const cooldownEnd = localStorage.getItem('emailVerificationCooldown');
+            if (cooldownEnd) {
+                const endTime = new Date(cooldownEnd);
+                const now = new Date();
+                const remaining = Math.ceil((endTime - now) / 1000);
+
+                if (remaining > 0) {
+                    this.cooldownSeconds = remaining;
+                    this.startCooldown();
+                } else {
+                    localStorage.removeItem('emailVerificationCooldown');
+                }
+            }
+        },
+
+        async sendVerificationCode() {
+            if (this.cooldownActive) return;
+
+            try {
+                const csrftoken = getCookie('csrftoken');
+                const response = await fetch("{% url 'users:resend_verification' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show toast notification
+                    window.showToast?.(data.message, 'success');
+
+                    // Activate cooldown
+                    this.activateCooldown();
+
+                    // Open verification modal
+                    document.getElementById('email_verification_modal').showModal();
+                } else {
+                    window.showToast?.(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error sending verification code:', error);
+                window.showToast?.('Failed to send verification code. Please try again.', 'error');
+            }
+        },
+
+        activateCooldown() {
+            const endTime = new Date();
+            endTime.setSeconds(endTime.getSeconds() + 60);
+            localStorage.setItem('emailVerificationCooldown', endTime.toISOString());
+
+            this.cooldownSeconds = 60;
+            this.startCooldown();
+        },
+
+        startCooldown() {
+            this.cooldownActive = true;
+            this.intervalId = setInterval(() => {
+                this.cooldownSeconds--;
+                if (this.cooldownSeconds <= 0) this.stopCooldown();
+            }, 500);
+        },
+
+        stopCooldown() {
+            clearInterval(this.intervalId);
+            this.cooldownActive = false;
+            this.cooldownSeconds = 60;
+            localStorage.removeItem('emailVerificationCooldown');
+        }
+    };
+};
+
+window.verificationModal = function () {
+    return {
+        code: '',
+        errorMessage: '',
+        successMessage: '',
+        isVerifying: false,
+
+        async verifyCode() {
+            if (this.code.length !== 6 || this.isVerifying) return;
+
+            this.isVerifying = true;
+            this.errorMessage = '';
+            this.successMessage = '';
+
+            try {
+                const csrftoken = getCookie('csrftoken');
+                const formData = new FormData();
+                formData.append('code', this.code);
+
+                const response = await fetch("{% url 'users:verify_email_code' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    this.successMessage = data.message;
+
+                    // Wait 1 second then close modal and reload page
+                    setTimeout(() => {
+                        this.closeModal();
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    this.errorMessage = data.message;
+                }
+            } catch (error) {
+                console.error('Error verifying code:', error);
+                this.errorMessage = 'Failed to verify code. Please try again.';
+            } finally {
+                this.isVerifying = false;
+            }
+        },
+
+        closeModal() {
+            this.code = '';
+            this.errorMessage = '';
+            this.successMessage = '';
+            this.isVerifying = false;
+            document.getElementById('email_verification_modal').close();
+        }
+    };
+};
+</script>
+
+
+{% endblock %}

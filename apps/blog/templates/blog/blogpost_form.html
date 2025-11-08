@@ -1,0 +1,277 @@
+{% extends 'theme/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block extra_head %}
+<!-- Quill CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+  <!-- Header with Back Button -->
+  {% if back_url %}
+  <div class="mb-6">
+    <a href="{{ back_url }}" class="btn btn-ghost btn-sm gap-2 hover:gap-3 transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      {{ back_text|default:"Back" }}
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Page Title & Description -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-neutral to-neutral-focus bg-clip-text text-transparent">
+      {{ form_title }}
+    </h1>
+    {% if form_description %}
+    <p class="text-base-content/70 text-lg">{{ form_description }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Form Card -->
+  <div class="card bg-base-100 shadow-2xl border border-base-300/50 hover:shadow-3xl transition-shadow duration-300">
+    <div class="card-body p-8">
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-error shadow-lg mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ form.non_field_errors }}</span>
+        </div>
+      {% endif %}
+
+      <!-- Main Form -->
+      <form method="post" enctype="multipart/form-data" class="space-y-6" id="blog-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+          {% if field.name != 'content' %}
+            <div class="form-control w-full group">
+              <label class="label">
+                <span class="label-text font-semibold text-base flex items-center gap-2">
+                  {{ field.label }}
+                  {% if field.field.required %}
+                    <span class="badge badge-error badge-sm">required</span>
+                  {% endif %}
+                </span>
+              </label>
+
+              {% if field.field.widget.input_type == 'textarea' %}
+                {{ field|add_class:"textarea textarea-bordered w-full min-h-32 focus:textarea-primary transition-all" }}
+              {% elif field.field.widget.input_type == 'select' %}
+                {{ field|add_class:"select select-bordered w-full focus:select-primary transition-all" }}
+              {% elif field.field.widget.input_type == 'file' %}
+                {{ field|add_class:"file-input file-input-bordered file-input-primary w-full focus:outline-primary transition-all" }}
+              {% else %}
+                {{ field|add_class:"input input-bordered w-full focus:input-primary transition-all" }}
+              {% endif %}
+
+              {% if field.help_text %}
+                <label class="label">
+                  <span class="label-text-alt text-base-content/60 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ field.help_text }}
+                  </span>
+                </label>
+              {% endif %}
+
+              {% if field.errors %}
+                <label class="label">
+                  <span class="label-text-alt text-error font-medium flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ field.errors.0 }}
+                  </span>
+                </label>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        <!-- Rich Text Editor for Content -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold text-base flex items-center gap-2">
+              Content
+              <span class="badge badge-error badge-sm">required</span>
+            </span>
+          </label>
+          <div id="quill-editor" class="bg-base-100 rounded-lg border border-base-300"></div>
+          <input type="hidden" name="content" id="quill-content" value="{{ form.content.value|default:'' }}">
+          {% if form.content.help_text %}
+            <label class="label">
+              <span class="label-text-alt text-base-content/60 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ form.content.help_text }}
+              </span>
+            </label>
+          {% endif %}
+          {% if form.content.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error font-medium flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ form.content.errors.0 }}
+              </span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Form Actions -->
+        <div class="divider my-6"></div>
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+          {% if cancel_url %}
+          <a href="{{ cancel_url }}" class="btn btn-ghost btn-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Cancel
+          </a>
+          {% endif %}
+          <button type="submit" class="btn btn-neutral btn-lg gap-2 shadow-lg hover:shadow-xl transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ submit_text|default:"Save" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize Quill editor
+  const quill = new Quill('#quill-editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'font': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'align': [] }],
+        ['blockquote', 'code-block'],
+        ['link', 'image', 'video'],
+        ['clean']
+      ]
+    },
+    placeholder: 'Write your blog post content here...'
+  });
+
+  // Load existing content if editing
+  const contentField = document.getElementById('quill-content');
+  if (contentField && contentField.value) {
+    quill.root.innerHTML = contentField.value;
+  }
+
+  // Handle image uploads
+  quill.getModule('toolbar').addHandler('image', function() {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async function() {
+      const file = input.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        try {
+          const response = await fetch('{% url "blog:upload-image" %}', {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
+          if (data.url) {
+            const range = quill.getSelection();
+            quill.insertEmbed(range.index, 'image', data.url);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image');
+        }
+      }
+    };
+  });
+
+  // Sync Quill content to hidden textarea on form submit
+  const form = document.getElementById('blog-form');
+  form.addEventListener('submit', function() {
+    contentField.value = quill.root.innerHTML;
+  });
+
+  // Also sync on any content change
+  quill.on('text-change', function() {
+    contentField.value = quill.root.innerHTML;
+  });
+});
+</script>
+
+<style>
+  .ql-editor {
+    min-height: 400px;
+    font-size: 16px;
+    background: oklch(var(--b1));
+    color: oklch(var(--bc));
+  }
+
+  .ql-toolbar {
+    background: oklch(var(--b2));
+    border-color: oklch(var(--bc) / 0.2);
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+  }
+
+  .ql-container {
+    border-color: oklch(var(--bc) / 0.2);
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+
+  .ql-toolbar .ql-stroke {
+    stroke: oklch(var(--bc) / 0.7);
+  }
+
+  .ql-toolbar .ql-fill {
+    fill: oklch(var(--bc) / 0.7);
+  }
+
+  .ql-toolbar button:hover .ql-stroke,
+  .ql-toolbar button:focus .ql-stroke,
+  .ql-toolbar button.ql-active .ql-stroke {
+    stroke: oklch(var(--p));
+  }
+
+  .ql-toolbar button:hover .ql-fill,
+  .ql-toolbar button:focus .ql-fill,
+  .ql-toolbar button.ql-active .ql-fill {
+    fill: oklch(var(--p));
+  }
+</style>
+{% endblock %}

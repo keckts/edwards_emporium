@@ -1,0 +1,4 @@
+<a href="{{ href|default:'#' }}"
+   class="inline-block bg-gradient-to-r {{ gradient_from|default:'from-purple-400' }} {{ gradient_to|default:'to-pink-600' }} text-white font-bold py-3 px-6 rounded-lg {{ c_attrs.class }}">
+    {{ text|default:'Button' }}{{ slot }}
+</a>

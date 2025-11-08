@@ -1,0 +1,57 @@
+{% extends 'theme/base_no_sidebar.html' %}
+{% load allauth i18n %}
+
+{% block content %}
+<div class="min-h-screen bg-white flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full">
+        <!-- Success Icon -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                {% trans "Verification Email Sent" %}
+            </h1>
+            <p class="text-gray-600">
+                {% trans "We've sent a verification link to your email address." %}
+            </p>
+        </div>
+
+        <!-- Info Card -->
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 mb-6">
+            <h3 class="font-semibold text-gray-900 mb-3">{% trans "What's next?" %}</h3>
+            <ol class="space-y-2 text-sm text-gray-700">
+                <li class="flex items-start gap-2">
+                    <span class="font-semibold text-blue-600">1.</span>
+                    <span>{% trans "Check your email inbox (and spam folder)" %}</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="font-semibold text-blue-600">2.</span>
+                    <span>{% trans "Click the verification link in the email" %}</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="font-semibold text-blue-600">3.</span>
+                    <span>{% trans "You'll be automatically logged in" %}</span>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Actions -->
+        <div class="space-y-3">
+            <a href="{% url 'dashboard' %}"
+               class="block text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all">
+                {% trans "Continue to Dashboard" %}
+            </a>
+        </div>
+
+        <!-- Help Text -->
+        <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-600 text-center">
+                <strong>{% trans "Note:" %}</strong> {% trans "The verification link will expire in 3 days." %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

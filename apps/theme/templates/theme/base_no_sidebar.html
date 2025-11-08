@@ -1,0 +1,73 @@
+
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}MyApp{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+      
+<!-- Toastify CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body class="bg-gray-50">
+
+ 
+
+<div class="p-4">
+  {% block content %} {% endblock %}
+</div>
+</body>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    {% if messages %}
+      {% for message in messages %}
+        let color;
+        switch ("{{ message.tags }}") {
+          case "success":
+            color = "#4CAF50"; // green
+            break;
+          case "error":
+            color = "#f44336"; // red
+            break;
+          case "warning":
+            color = "#ff9800"; // orange
+            break;
+          case "info":
+            color = "#2196F3"; // blue
+            break;
+          case "debug":
+            color = "#9E9E9E"; // grey
+            break;
+          default:
+            color = "#323232"; // fallback
+        }
+
+        Toastify({
+          text: "{{ message|escapejs }}",
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: color,
+          close: true,
+          stopOnFocus: true
+        }).showToast();
+      {% endfor %}
+    {% endif %}
+  });
+</script>
+
+</html>
+

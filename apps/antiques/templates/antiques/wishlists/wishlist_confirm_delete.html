@@ -1,0 +1,77 @@
+{% extends 'theme/base.html' %}
+
+{% block title %}Delete {{ object.title }}?{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div class="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto mb-4">
+      </svg>
+    </div>
+    <h1 class="text-3xl font-bold text-error">Delete Wishlist?</h1>
+    <p class="text-base-content/60 mt-2">This action cannot be undone</p>
+  </div>
+
+  <!-- Wishlist Preview Card -->
+  <div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4">You are about to delete:</h2>
+
+      <div class="p-4 bg-base-200 rounded-lg">
+        <h3 class="text-xl font-bold mb-2">{{ object.title }}</h3>
+        <p class="text-base-content/70">
+          Contains {{ object.antiques.count }} antique{{ object.antiques.count|pluralize }}
+        </p>
+      </div>
+
+      <!-- Warning Message -->
+      <div class="alert alert-warning mt-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div>
+          <h4 class="font-bold">Warning!</h4>
+          <p class="text-sm">Deleting this wishlist will permanently remove it. The antiques themselves will not be deleted.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Form -->
+  <form method="post" class="card bg-base-100 shadow-xl">
+    {% csrf_token %}
+    <div class="card-body">
+      <div class="form-control">
+        <label class="label cursor-pointer justify-start gap-3">
+          <input type="checkbox" required class="checkbox checkbox-error" id="confirmDelete" />
+          <span class="label-text font-semibold">I understand that this action cannot be undone</span>
+        </label>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card-actions justify-end mt-6">
+        <a href="{% url 'antiques:wishlist-detail' object.id %}" class="btn btn-ghost">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-error" id="deleteButton" disabled>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Delete Wishlist
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Enable delete button only when checkbox is checked
+  document.getElementById('confirmDelete').addEventListener('change', function() {
+    document.getElementById('deleteButton').disabled = !this.checked;
+  });
+</script>
+{% endblock %}

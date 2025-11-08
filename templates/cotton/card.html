@@ -1,0 +1,23 @@
+<div class="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden {{ c_attrs.class }}">
+    {% if image %}
+    <img src="{{ image }}" alt="{{ title|default:'Card image' }}" class="w-full h-48 object-cover">
+    {% endif %}
+    <div class="p-6">
+        {% if title %}
+        <h3 class="text-2xl font-bold mb-2 text-gray-800">{{ title }}</h3>
+        {% endif %}
+        {% if subtitle %}
+        <p class="text-sm text-gray-600 mb-4">{{ subtitle }}</p>
+        {% endif %}
+        <div class="text-gray-700">
+            {{ slot }}
+        </div>
+        {% if button_text %}
+        <div class="mt-4">
+            <a href="{{ button_url|default:'#' }}" class="inline-block bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition-colors">
+                {{ button_text }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>

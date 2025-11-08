@@ -1,0 +1,68 @@
+{% extends 'theme/base_no_sidebar.html' %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div class="max-w-4xl mx-auto text-center">
+        <!-- Logo/Brand -->
+        <div class="mb-8">
+            <h1 class="text-7xl font-bold text-gray-900 mb-4">
+              {{ project_name}}
+            </h1>
+            <p class="text-2xl text-gray-600 mb-8">
+                Your Modern Application
+            </p>
+            <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+                A powerful web platform built with Django, featuring beautiful components,
+                seamless authentication, and a modern user experience.
+            </p>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
+            <a href="{% url 'users:signup' %}"
+               class="inline-block px-8 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                Get Started
+            </a>
+            <a href="{% url 'users:login' %}"
+               class="inline-block px-8 py-4 bg-white text-gray-700 font-semibold text-lg rounded-lg shadow-md hover:shadow-lg border-2 border-gray-200 hover:border-gray-300 transition-all duration-200">
+                Sign In
+            </a>
+        </div>
+
+        <!-- Features -->
+        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Fast & Secure</h3>
+                <p class="text-gray-600 text-sm">Built with Django for reliability and security you can trust.</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Beautiful Design</h3>
+                <p class="text-gray-600 text-sm">Modern UI with Tailwind CSS for a stunning experience.</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Easy Authentication</h3>
+                <p class="text-gray-600 text-sm">Simple signup and login with Google OAuth support.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
