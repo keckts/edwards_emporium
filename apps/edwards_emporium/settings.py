@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.antiques",
     "apps.blog",
+    "apps.sellers.apps.SellersConfig",
     # third party
     "django_cotton",
     "django_viewcomponent",

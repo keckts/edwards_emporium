@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Max
 from django.utils.text import slugify
-
+from apps.sellers.models import Seller
 from .base import Base
 
 
@@ -24,6 +24,7 @@ class Antique(Base):
     quantity = models.PositiveIntegerField(default=1)
     additional_info = models.TextField(blank=True)
 
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name="antiques", null=True)
     stripe_product_id = models.CharField(max_length=100, blank=True, null=True)
     stripe_price_id = models.CharField(max_length=100, blank=True, null=True)
 

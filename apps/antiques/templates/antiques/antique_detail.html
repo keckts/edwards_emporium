@@ -4,11 +4,11 @@
 {% block title %}{{ object.title }} - Antique Details{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-6xl">
-  <!-- Back Button -->
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+  <!-- Back Navigation -->
   <div class="mb-6">
-    <a href="{% url 'antiques:antique-list' %}" class="btn btn-ghost btn-sm">
-      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <a href="{% url 'antiques:antique-list' %}" class="btn btn-ghost btn-sm gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
       </svg>
       Back to Antiques
@@ -16,131 +16,189 @@
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Image Gallery Section -->
+    <!-- Left Side - Image Gallery -->
     <div class="space-y-4">
       {% if object.images.exists %}
-        <!-- Main Image -->
-        <div class="card bg-base-100 shadow-xl overflow-hidden">
-          <figure class="relative aspect-square">
-            <img
-              id="mainImage"
-              src="{{ object.images.first.image.url }}"
-              alt="{{ object.title }}"
-              class="w-full h-full object-cover"
-            />
-          </figure>
-        </div>
-
-        <!-- Thumbnail Gallery -->
+        <!-- Main Image with Carousel -->
         {% if object.images.count > 1 %}
-        <div class="grid grid-cols-4 gap-2">
+        <div class="carousel w-full rounded-lg shadow-xl">
           {% for image in object.images.all %}
-          <div class="card bg-base-100 shadow cursor-pointer hover:ring-2 hover:ring-primary transition-all overflow-hidden" onclick="document.getElementById('mainImage').src='{{ image.image.url }}'">
-            <figure class="aspect-square">
-              <img
-                src="{{ image.image.url }}"
-                alt="{{ object.title }} - Image {{ forloop.counter }}"
-                class="w-full h-full object-cover"
-              />
-            </figure>
+          <div id="slide{{ forloop.counter }}" class="carousel-item relative w-full">
+            <img src="{{ image.image.url }}" class="w-full object-cover aspect-square" alt="{{ object.title }}" />
+            <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+              <a href="#slide{% if forloop.first %}{{ object.images.count }}{% else %}{{ forloop.counter|add:'-1' }}{% endif %}" class="btn btn-circle btn-sm">❮</a>
+              <a href="#slide{% if forloop.last %}1{% else %}{{ forloop.counter|add:'1' }}{% endif %}" class="btn btn-circle btn-sm">❯</a>
+            </div>
           </div>
           {% endfor %}
         </div>
+
+        <!-- Thumbnail Grid -->
+        <div class="flex gap-2 overflow-x-auto pb-2">
+          {% for image in object.images.all %}
+          <a href="#slide{{ forloop.counter }}" class="flex-shrink-0">
+            <div class="w-20 h-20 rounded-lg overflow-hidden border-2 border-base-300 hover:border-primary transition-colors cursor-pointer">
+              <img src="{{ image.image.url }}" class="w-full h-full object-cover" alt="Thumbnail {{ forloop.counter }}" />
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <!-- Single Image -->
+        <div class="rounded-lg shadow-xl overflow-hidden">
+          <img src="{{ object.images.first.image.url }}" class="w-full object-cover aspect-square" alt="{{ object.title }}" />
+        </div>
         {% endif %}
       {% else %}
-        <!-- Placeholder Image -->
-        <div class="card bg-base-100 shadow-xl">
-          <figure class="relative aspect-square bg-gray-200 flex items-center justify-center">
-            <svg class="w-32 h-32 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-            </svg>
-          </figure>
+        <!-- Placeholder -->
+        <div class="rounded-lg shadow-xl bg-base-200 aspect-square flex items-center justify-center">
+          <svg class="w-32 h-32 text-base-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+          </svg>
         </div>
       {% endif %}
     </div>
 
-    <!-- Details Section -->
+    <!-- Right Side - Details -->
     <div class="space-y-6">
-      <!-- Title and Status -->
+      <!-- Header -->
       <div>
-        <h1 class="text-4xl font-bold mb-2">{{ object.title }}</h1>
-        <div class="flex gap-2 mb-4">
-          {% if object.is_sold %}
-          <div class="badge badge-error badge-lg">Sold Out</div>
-          {% elif object.quantity <= 5 %}
-          <div class="badge badge-warning badge-lg">Low Stock ({{ object.quantity }} left)</div>
-          {% else %}
-          <div class="badge badge-success badge-lg">In Stock ({{ object.quantity }} available)</div>
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <h1 class="text-4xl font-bold">{{ object.title }}</h1>
+          {% if user.is_authenticated %}
+          <div class="flex-shrink-0">
+            {% include 'antiques/partials/wishlist_button.html' with antique=object in_wishlist=in_wishlist button_size='btn-md' %}
+          </div>
           {% endif %}
-          <div class="badge badge-outline badge-lg">{{ object.type_of_antique }}</div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+          <div class="badge badge-outline badge-lg gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+            </svg>
+            {{ object.type_of_antique }}
+          </div>
+          <div class="badge badge-ghost badge-lg gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            Listed {{ object.created_at|date:"M j, Y" }}
+          </div>
         </div>
       </div>
 
-      <!-- Price and Wishlist -->
-      <div class="card bg-black text-white">
+      <!-- Price and Status -->
+      <div class="card bg-gradient-to-br from-primary to-secondary text-primary-content shadow-xl">
         <div class="card-body">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="card-title text-3xl">${{ object.price }}</h2>
+              <h2 class="card-title text-4xl font-bold mb-1">${{ object.price }}</h2>
               <p class="text-sm opacity-90">Price per item</p>
             </div>
-            {% if user.is_authenticated %}
-            <div class="flex items-center gap-2">
-              {% include 'antiques/partials/wishlist_button.html' with antique=object in_wishlist=in_wishlist button_size='btn-lg' %}
+            <div class="text-right">
+              {% if object.is_sold %}
+              <div class="badge badge-error badge-lg gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                Sold Out
+              </div>
+              {% elif object.quantity <= 5 %}
+              <div class="badge badge-warning badge-lg gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Low Stock ({{ object.quantity }})
+              </div>
+              {% else %}
+              <div class="badge badge-success badge-lg gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                In Stock ({{ object.quantity }})
+              </div>
+              {% endif %}
             </div>
-            {% endif %}
           </div>
         </div>
       </div>
 
       <!-- Description -->
       {% if object.description %}
-      <div class="card bg-base-200">
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title text-lg">Description</h3>
-          <p class="text-base-content/80">{{ object.description }}</p>
+          <h3 class="card-title text-xl mb-2">Description</h3>
+          <p class="text-base-content/80 leading-relaxed">{{ object.description|linebreaks }}</p>
         </div>
       </div>
       {% endif %}
 
       <!-- Details Grid -->
-      <div class="grid grid-cols-2 gap-4">
-        {% if object.dimensions %}
-        <div class="card bg-base-100 shadow">
-          <div class="card-body p-4">
-            <h4 class="font-semibold text-sm text-base-content/60">Dimensions</h4>
-            <p class="text-base-content">{{ object.dimensions }}</p>
-          </div>
-        </div>
-        {% endif %}
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title text-xl mb-4">Details</h3>
+          <div class="grid grid-cols-2 gap-4">
+            {% if object.dimensions %}
+            <div class="space-y-1">
+              <div class="text-sm text-base-content/60 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                Dimensions
+              </div>
+              <p class="font-medium">{{ object.dimensions }}</p>
+            </div>
+            {% endif %}
 
-        <div class="card bg-base-100 shadow">
-          <div class="card-body p-4">
-            <h4 class="font-semibold text-sm text-base-content/60">Item ID</h4>
-            <p class="text-base-content">#{{ object.short_id }}</p>
-          </div>
-        </div>
+            <div class="space-y-1">
+              <div class="text-sm text-base-content/60 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                Quantity
+              </div>
+              <p class="font-medium">{{ object.quantity }}</p>
+            </div>
 
-        <div class="card bg-base-100 shadow">
-          <div class="card-body p-4">
-            <h4 class="font-semibold text-sm text-base-content/60">Created</h4>
-            <p class="text-base-content">{{ object.created_at|date:"M d, Y" }}</p>
-          </div>
-        </div>
+            <div class="space-y-1">
+              <div class="text-sm text-base-content/60 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                </svg>
+                Item ID
+              </div>
+              <p class="font-medium">#{{ object.short_id }}</p>
+            </div>
 
-        <div class="card bg-base-100 shadow">
-          <div class="card-body p-4">
-            <h4 class="font-semibold text-sm text-base-content/60">Updated</h4>
-            <p class="text-base-content">{{ object.updated_at|date:"M d, Y" }}</p>
+            <div class="space-y-1">
+              <div class="text-sm text-base-content/60 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Created
+              </div>
+              <p class="font-medium">{{ object.created_at|date:"M d, Y" }}</p>
+            </div>
+
+            <div class="space-y-1">
+              <div class="text-sm text-base-content/60 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Updated
+              </div>
+              <p class="font-medium">{{ object.updated_at|date:"M d, Y" }}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Content -->
+      <!-- Content Section -->
       {% if object.content %}
-      <div class="card bg-base-200">
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title text-lg">Detailed Information</h3>
+          <h3 class="card-title text-xl mb-2">Detailed Information</h3>
           <div class="prose max-w-none text-base-content/80">
             {{ object.content|linebreaks }}
           </div>
@@ -150,39 +208,59 @@
 
       <!-- Additional Info -->
       {% if object.additional_info %}
-      <div class="card bg-base-200">
+      <div class="card bg-base-200 shadow-lg">
         <div class="card-body">
-          <h3 class="card-title text-lg">Additional Information</h3>
+          <h3 class="card-title text-xl mb-2 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Additional Information
+          </h3>
           <p class="text-base-content/80">{{ object.additional_info }}</p>
         </div>
       </div>
       {% endif %}
-      
+
+      <!-- Admin Actions -->
       {% if request.user.is_superuser %}
-      <!-- Action Buttons -->
-      <div class="flex gap-2">
-        <a href="{% url 'antiques:antique-update' object.short_id object.slug %}" class="btn flex-1">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
-          Edit
-        </a>
-        <button
-          hx-get="{% url 'antiques:antique-delete' object.short_id object.slug %}"
-          hx-target="body"
-          hx-swap="beforeend"
-          class="btn btn-error text-white flex-1">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-          Delete
-        </button>
-      {% endif %}
+      <div class="card bg-base-100 shadow-lg border-2 border-warning">
+        <div class="card-body">
+          <h3 class="card-title text-xl mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Admin Actions
+          </h3>
+          <div class="flex gap-2">
+            <a
+              href="{% url 'antiques:antique-update' object.short_id object.slug %}"
+              class="btn btn-primary flex-1 gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Edit
+            </a>
+            <button
+              hx-get="{% url 'antiques:antique-delete' object.short_id object.slug %}"
+              hx-target="body"
+              hx-swap="beforeend"
+              class="btn btn-error flex-1 gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
       </div>
+      {% endif %}
     </div>
   </div>
 </div>
 
 <!-- HTMX for wishlist functionality -->
 <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
 {% endblock %}
