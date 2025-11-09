@@ -27,3 +27,12 @@ class IndexView(RedirectView):
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "core/dashboard.html"
     login_url = reverse_lazy("index")  # Redirect to index if not logged in
+
+class AboutView(TemplateView):
+    template_name = "core/about/about.html"
+
+class TermsOfServiceView(TemplateView):
+    template_name = "core/about/terms_of_service.html"
+
+class PrivacyPolicyView(TemplateView):
+    template_name = "core/about/privacy_policy.html"

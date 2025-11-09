@@ -11,9 +11,9 @@ class AntiqueForm(forms.ModelForm):
         model = Antique
         exclude = {
             "id",
-            "owner",
-            "short_id",
+            "user",
             "created_at",
+            "slug",
             "updated_at",
             "is_sold",
             "seller",
@@ -56,12 +56,6 @@ class AntiqueForm(forms.ModelForm):
             {
                 "class": "input input-bordered w-full",
                 "placeholder": "e.g., Furniture, Jewelry, Art",
-            }
-        )
-        self.fields["slug"].widget.attrs.update(
-            {
-                "class": "input input-bordered w-full",
-                "placeholder": "Auto-generated from title if left blank",
             }
         )
         self.fields["dimensions"].widget.attrs.update(

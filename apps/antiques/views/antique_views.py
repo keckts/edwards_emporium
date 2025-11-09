@@ -77,9 +77,7 @@ class AntiqueDetailView(DetailView, BaseModelViewMixin):
     action = "detail"
 
     def get_object(self, queryset=None):
-        return Antique.objects.get(
-            short_id=self.kwargs["short_id"], slug=self.kwargs["slug"]
-        )
+        return Antique.objects.get(slug=self.kwargs["slug"])
 
 
 class AntiqueCreateView(VerifiedSellerRequiredMixin, CreateView, BaseModelViewMixin):
@@ -110,6 +108,7 @@ class AntiqueCreateView(VerifiedSellerRequiredMixin, CreateView, BaseModelViewMi
     def form_valid(self, form):
         context = self.get_context_data()
         image_formset = context["image_formset"]
+        form.instance.user = self.request.user
 
         with transaction.atomic():
             self.object = form.save()
@@ -147,9 +146,7 @@ class AntiqueUpdateView(VerifiedSellerRequiredMixin, UpdateView, BaseModelViewMi
     action = "form"
 
     def get_object(self, queryset=None):
-        return Antique.objects.get(
-            short_id=self.kwargs["short_id"], slug=self.kwargs["slug"]
-        )
+        return Antique.objects.get(slug=self.kwargs["slug"])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -213,9 +210,7 @@ class AntiqueDeleteView(VerifiedSellerRequiredMixin, DeleteView, BaseModelViewMi
     success_url = reverse_lazy("antiques:antique-list")
 
     def get_object(self, queryset=None):
-        return Antique.objects.get(
-            short_id=self.kwargs["short_id"], slug=self.kwargs["slug"]
-        )
+        return Antique.objects.get(slug=self.kwargs["slug"])
 
     def get(self, request, *args, **kwargs):
         """Handle GET request - return modal for HTMX or full page"""
@@ -236,7 +231,7 @@ class AntiqueDeleteView(VerifiedSellerRequiredMixin, DeleteView, BaseModelViewMi
                 "warning_message": " ".join(warning_parts),
                 "delete_url": reverse_lazy(
                     "antiques:antique-delete",
-                    kwargs={"short_id": antique.short_id, "slug": antique.slug},
+                    kwargs={"slug": antique.slug},
                 ),
             }
             return render(request, "antiques/partials/delete_modal.html", context)

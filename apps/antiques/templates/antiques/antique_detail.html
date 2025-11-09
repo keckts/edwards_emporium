@@ -93,8 +93,8 @@
         <div class="card-body">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="card-title text-4xl font-bold mb-1">${{ object.price }}</h2>
-              <p class="text-sm opacity-90">Price per item</p>
+              <h2 class="card-title  text-black text-4xl font-bold mb-1">${{ object.price }}</h2>
+              <p class="text-sm text-black">Price per item</p>
             </div>
             <div class="text-right">
               {% if object.is_sold %}
@@ -166,9 +166,9 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
                 </svg>
-                Item ID
+                Slug
               </div>
-              <p class="font-medium">#{{ object.short_id }}</p>
+              <p class="font-medium">{{ object.slug }}</p>
             </div>
 
             <div class="space-y-1">
@@ -221,6 +221,32 @@
       </div>
       {% endif %}
 
+      <!-- Buy Now Button -->
+      {% if user.is_authenticated %}
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title text-xl mb-4">Purchase This Item</h3>
+          <form action="{% url 'payments:buy_antique' object.slug %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-lg w-full gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              Buy Now - ${{ object.price }}
+            </button>
+          </form>
+          <p class="text-xs text-base-content/60 text-center mt-2">Secure checkout powered by Stripe</p>
+        </div>
+      </div>
+      {% else %}
+      <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>Please <a href="{% url 'account_login' %}" class="link">log in</a> to purchase this item</span>
+      </div>
+      {% endif %}
+
       <!-- Admin Actions -->
       {% if request.user.is_superuser %}
       <div class="card bg-base-100 shadow-lg border-2 border-warning">
@@ -233,8 +259,8 @@
           </h3>
           <div class="flex gap-2">
             <a
-              href="{% url 'antiques:antique-update' object.short_id object.slug %}"
-              class="btn btn-primary flex-1 gap-2"
+              href="{% url 'antiques:antique-update' object.slug %}"
+              class="btn btn-neutral flex-1 gap-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -242,10 +268,10 @@
               Edit
             </a>
             <button
-              hx-get="{% url 'antiques:antique-delete' object.short_id object.slug %}"
+              hx-get="{% url 'antiques:antique-delete' object.slug %}"
               hx-target="body"
               hx-swap="beforeend"
-              class="btn btn-error flex-1 gap-2"
+              class="btn btn-error flex-1 gap-2 text-white"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>

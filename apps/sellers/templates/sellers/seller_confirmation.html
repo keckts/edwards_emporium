@@ -4,17 +4,75 @@
 {% block title %}Seller Confirmation{% endblock %}
 
 {% block content %}
-<div class="card bg-base-100 w-96 shadow-sm">
-  <figure>
-    <img
-      src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp" <!--Change in production-->
-      alt="Shoes" />
-  </figure>
-  <div class="card-body">
-    <h2 class="card-title">Welcome to Edward's Emporium!</h2>
-    <p>We will try to verify you as a seller as soon as possible. Once completed, you will be able to sell on Edwards Emporium!</p>
-    <div class="card-actions justify-end">
-      <a href="{% url 'sellers:seller-dashboard' %}" class="btn btn-neutral">Go to Dashboard</a>
+<div class="container mx-auto px-4 py-16 max-w-2xl">
+  <!-- Success Alert -->
+  <div role="alert" class="alert alert-success shadow-lg mb-8">
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="font-semibold">Seller profile created successfully!</span>
+  </div>
+
+  <!-- Welcome Card -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body text-center space-y-6">
+      <!-- Icon -->
+      <div class="flex justify-center">
+        <div class="bg-primary/10 p-6 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div>
+        <h2 class="card-title text-3xl font-bold justify-center mb-2">Welcome to Edward's Emporium!</h2>
+        <p class="text-base-content/70 text-lg">Your seller journey begins here</p>
+      </div>
+
+      <!-- Info Section -->
+      <div class="divider"></div>
+
+      <div class="bg-base-200 rounded-lg p-6 space-y-4">
+        <div class="flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-info shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div class="text-left">
+            <h3 class="font-semibold mb-1">Verification Pending</h3>
+            <p class="text-sm text-base-content/70">We will verify your seller account as soon as possible. You'll receive an email notification once your account is approved.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-success shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <div class="text-left">
+            <h3 class="font-semibold mb-1">What's Next?</h3>
+            <p class="text-sm text-base-content/70">Once verified, you'll be able to list antiques, manage your inventory, and start selling on Edward's Emporium!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Action Buttons -->
+      <div class="card-actions justify-center gap-3">
+        <a href="{% url 'sellers:seller-dashboard' %}" class="btn btn-neutral gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+          Go to Dashboard
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-ghost gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Back to Home
+        </a>
+      </div>
     </div>
   </div>
 </div>

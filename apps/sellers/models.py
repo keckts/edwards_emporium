@@ -37,5 +37,12 @@ class Seller(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
 
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # create a slug on save based on username
+        self.slug = self.user.username.lower().replace(" ", "-")
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.store_name} - {self.user.email}"

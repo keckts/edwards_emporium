@@ -1,4 +1,5 @@
 import random
+import uuid
 
 from django.conf import settings
 from django.db import models
@@ -16,9 +17,6 @@ class Antique(Base):
     type_of_antique = models.CharField(max_length=100)
 
     slug = models.SlugField(max_length=255, unique=True, blank=True)
-    short_id = models.PositiveIntegerField(
-        unique=True, editable=False, null=True, blank=True
-    )
 
     dimensions = models.CharField(max_length=100, blank=True)
     quantity = models.PositiveIntegerField(default=1)
@@ -31,30 +29,21 @@ class Antique(Base):
     class Meta:
         indexes = [
             models.Index(fields=["slug"]),
-            models.Index(fields=["short_id"]),
         ]
 
     def __str__(self):
-        return f"{self.title} ({self.short_id})"
+        return f"{self.title}"
 
     def get_absolute_url(self):
-        return f"/antiques/{self.short_id}-{self.slug}/"
+        return f"/antiques/{self.slug}/"
 
     def save(self, *args, **kwargs):
-        # Efficient short_id generation — no random guessing
-        if not self.short_id:
-            max_id = Antique.objects.aggregate(max_id=Max("short_id"))["max_id"] or 9999
-            self.short_id = max_id + 1
-
         # Generate slug if missing
         if not self.slug:
             base_slug = slugify(self.title)
-            slug = base_slug
-            counter = 1
-            while Antique.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
+            unique_id = str(uuid.uuid4())[:8]
+            self.slug = f"{base_slug}-{unique_id}"
+            # Note: unique id has 16^8 = 4,294,967,296 combinations, low collision risk
 
         # Auto-update sold status
         self.is_sold = self.quantity == 0

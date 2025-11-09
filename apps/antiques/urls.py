@@ -22,17 +22,17 @@ urlpatterns = [
     path("", AntiqueListView.as_view(), name="antique-list"),
     path("create/", AntiqueCreateView.as_view(), name="antique-create"),
     path(
-        "<int:short_id>-<slug:slug>/",
+        "<slug:slug>/",
         AntiqueDetailView.as_view(),
         name="antique-detail",
     ),
     path(
-        "<int:short_id>-<slug:slug>/update/",
+        "<slug:slug>/update/",
         AntiqueUpdateView.as_view(),
         name="antique-update",
     ),
     path(
-        "<int:short_id>-<slug:slug>/delete/",
+        "<slug:slug>/delete/",
         AntiqueDeleteView.as_view(),
         name="antique-delete",
     ),

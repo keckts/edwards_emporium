@@ -28,7 +28,7 @@ body {
         {% endif %}
       </p>
     </div>
-    <a href="{% if object %}{% url 'antiques:detail' object.short_id object.slug %}{% else %}{% url 'antiques:list' %}{% endif %}" class="px-4 py-2 border-2 border-black rounded hover:bg-gray-100 transition flex items-center gap-2">
+    <a href="{% if object %}{% url 'antiques:antique-detail' object.slug %}{% else %}{% url 'antiques:antique-list' %}{% endif %}" class="px-4 py-2 border-2 border-black rounded hover:bg-gray-100 transition flex items-center gap-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
       </svg>
@@ -315,7 +315,7 @@ body {
     <div class="border-2 border-black bg-gray-50 shadow-xl rounded-lg">
       <div class="p-6">
         <div class="flex gap-4 justify-end">
-          <a href="{% if object %}{% url 'antiques:detail' object.short_id object.slug %}{% else %}{% url 'antiques:list' %}{% endif %}" class="px-6 py-3 border-2 border-black rounded hover:bg-gray-100 transition font-semibold">
+          <a href="{% if object %}{% url 'antiques:antique-detail' object.slug %}{% else %}{% url 'antiques:antique-list' %}{% endif %}" class="px-6 py-3 border-2 border-black rounded hover:bg-gray-100 transition font-semibold">
             Cancel
           </a>
           <button type="submit" class="bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition border-2 border-black flex items-center gap-2 font-semibold">

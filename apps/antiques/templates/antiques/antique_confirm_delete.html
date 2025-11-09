@@ -44,7 +44,7 @@
           <h3 class="text-xl font-bold mb-2">{{ object.title }}</h3>
           <div class="flex flex-wrap gap-2 mb-2">
             <div class="badge badge-outline">{{ object.type_of_antique }}</div>
-            <div class="badge badge-outline">#{{ object.short_id }}</div>
+            <div class="badge badge-outline">{{ object.slug }}</div>
             {% if object.is_sold %}
             <div class="badge badge-error">Sold</div>
             {% else %}
@@ -100,7 +100,7 @@
 
       <!-- Action Buttons -->
       <div class="card-actions justify-end mt-6">
-        <a href="{% url 'antiques:detail' object.short_id object.slug %}" class="btn btn-ghost">
+        <a href="{% url 'antiques:antique-detail' object.slug %}" class="btn btn-ghost">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
