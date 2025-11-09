@@ -126,9 +126,9 @@ class WishlistToggleView(LoginRequiredMixin, View):
     Shows a modal with all user's wishlists when clicked.
     """
 
-    def get(self, request, antique_id):
+    def get(self, request, slug):
         """Show modal with wishlist selection"""
-        antique = get_object_or_404(Antique, id=antique_id)
+        antique = get_object_or_404(Antique, slug=slug)
         user_wishlists = Wishlist.objects.filter(user=request.user)
 
         # Get which wishlists currently contain this antique
@@ -138,7 +138,7 @@ class WishlistToggleView(LoginRequiredMixin, View):
                 {
                     "wishlist": wishlist,
                     "contains_antique": wishlist.antiques.filter(
-                        id=antique_id
+                        slug=slug
                     ).exists(),
                 }
             )
@@ -150,16 +150,16 @@ class WishlistToggleView(LoginRequiredMixin, View):
         }
         return render(request, "antiques/partials/wishlist_modal.html", context)
 
-    def post(self, request, antique_id):
+    def post(self, request, slug):
         """Toggle antique in a specific wishlist"""
-        antique = get_object_or_404(Antique, id=antique_id)
+        antique = get_object_or_404(Antique, slug=slug)
         wishlist_id = request.POST.get("wishlist_id")
 
         if wishlist_id:
             wishlist = get_object_or_404(Wishlist, id=wishlist_id, user=request.user)
 
             # Toggle antique in wishlist
-            if wishlist.antiques.filter(id=antique_id).exists():
+            if wishlist.antiques.filter(slug=slug).exists():
                 wishlist.antiques.remove(antique)
                 action = "removed"
                 message = f"Removed from {wishlist.title}"
@@ -187,12 +187,21 @@ class WishlistToggleView(LoginRequiredMixin, View):
 
 
 @login_required
-def wishlist_add_antique(request, wishlist_id, antique_id):
-    """Add an antique to a specific wishlist (HTMX endpoint)"""
-    wishlist = get_object_or_404(Wishlist, id=wishlist_id, user=request.user)
-    antique = get_object_or_404(Antique, id=antique_id)
+def wishlist_add_antique(request, pk, slug):
+    """
+    Add an antique to a specific wishlist (HTMX endpoint)
+
+    Args:
+        pk (UUID): Wishlist primary key (UUID)
+        slug (str): Antique slug
+    """
+    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+    antique = get_object_or_404(Antique, slug=slug)
 
     wishlist.antiques.add(antique)
+
+    if antique in wishlist.antiques.all():
+        messages.success(request, f"Successfully added '{antique.title}' to wishlist!")
 
     # Return updated modal content
     user_wishlists = Wishlist.objects.filter(user=request.user)
@@ -201,7 +210,7 @@ def wishlist_add_antique(request, wishlist_id, antique_id):
         wishlist_statuses.append(
             {
                 "wishlist": wl,
-                "contains_antique": wl.antiques.filter(id=antique_id).exists(),
+                "contains_antique": wl.antiques.filter(slug=slug).exists(),
             }
         )
 
@@ -215,10 +224,16 @@ def wishlist_add_antique(request, wishlist_id, antique_id):
 
 
 @login_required
-def wishlist_remove_antique(request, wishlist_id, antique_id):
-    """Remove an antique from a specific wishlist (HTMX endpoint)"""
-    wishlist = get_object_or_404(Wishlist, id=wishlist_id, user=request.user)
-    antique = get_object_or_404(Antique, id=antique_id)
+def wishlist_remove_antique(request, pk, slug):
+    """
+    Remove an antique from a specific wishlist (HTMX endpoint)
+
+    Args:
+        pk (UUID): Wishlist primary key (UUID)
+        slug (str): Antique slug
+    """
+    wishlist = get_object_or_404(Wishlist, pk=pk, user=request.user)
+    antique = get_object_or_404(Antique, slug=slug)
 
     wishlist.antiques.remove(antique)
 
@@ -229,7 +244,7 @@ def wishlist_remove_antique(request, wishlist_id, antique_id):
         wishlist_statuses.append(
             {
                 "wishlist": wl,
-                "contains_antique": wl.antiques.filter(id=antique_id).exists(),
+                "contains_antique": wl.antiques.filter(slug=slug).exists(),
             }
         )
 

@@ -5,13 +5,13 @@ Can be used in list views, detail views, etc.
 
 Usage in templates:
 - For detail view: {% include 'antiques/partials/wishlist_button.html' with in_wishlist=in_wishlist %}
-- For list view: {% include 'antiques/partials/wishlist_button.html' with in_wishlist=antique.id in wishlist_antique_ids %}
+- For list view: {% include 'antiques/partials/wishlist_button.html' with in_wishlist=antique.slug in wishlist_antique_ids %}
 {% endcomment %}
 
 {% if user.is_authenticated %}
 <button
   type="button"
-  hx-get="{% url 'antiques:wishlist-toggle' antique.id %}"
+  hx-get="{% url 'antiques:wishlist-toggle' antique.slug %}"
   hx-swap="beforeend"
   hx-target="body"
   class="btn btn-circle btn-ghost hover:bg-red-50 transition-colors group {{ button_size|default:'btn-md' }}"

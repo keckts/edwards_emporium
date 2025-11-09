@@ -79,6 +79,20 @@ class AntiqueDetailView(DetailView, BaseModelViewMixin):
     def get_object(self, queryset=None):
         return Antique.objects.get(slug=self.kwargs["slug"])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add wishlist status for authenticated users
+        if self.request.user.is_authenticated:
+            context['in_wishlist'] = Wishlist.objects.filter(
+                user=self.request.user,
+                antiques=self.object
+            ).exists()
+        else:
+            context['in_wishlist'] = False
+
+        return context
+
 
 class AntiqueCreateView(VerifiedSellerRequiredMixin, CreateView, BaseModelViewMixin):
     model = Antique
@@ -109,6 +123,7 @@ class AntiqueCreateView(VerifiedSellerRequiredMixin, CreateView, BaseModelViewMi
         context = self.get_context_data()
         image_formset = context["image_formset"]
         form.instance.user = self.request.user
+        form.instance.seller = self.request.user.seller
 
         with transaction.atomic():
             self.object = form.save()

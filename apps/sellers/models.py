@@ -33,6 +33,11 @@ class Seller(models.Model):
     linkedin = models.URLField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
 
+    # styling
+    profile_picture = models.ImageField(
+        upload_to="seller_profiles/", blank=True, null=True
+    )
+
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )

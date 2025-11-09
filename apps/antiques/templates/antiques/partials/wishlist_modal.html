@@ -7,10 +7,10 @@ Wishlist modal for selecting or creating wishlists.
 {% endcomment %}
 
 <!-- Modal toggle checkbox -->
-<input type="checkbox" id="wishlist-modal-toggle" class="modal-toggle" />
+<input type="checkbox" id="wishlist-modal-toggle" class="modal-toggle" checked />
 
 <!-- Modal -->
-<div id="wishlist-modal" class="modal">
+<div id="wishlist-modal" class="modal modal-open">
   <div class="modal-box max-w-md bg-white relative">
 
     <!-- Modal Header -->
@@ -73,7 +73,7 @@ Wishlist modal for selecting or creating wishlists.
 
               {% if not item.contains_antique %}
                 <form method="POST"
-                      hx-post="{% url 'antiques:wishlist-add-antique' item.wishlist.id antique.id %}"
+                      hx-post="{% url 'antiques:wishlist-add-antique' item.wishlist.pk antique.slug %}"
                       hx-swap="none"
                       hx-on="htmx:afterRequest: document.getElementById('wishlist-modal-toggle').click()">
                   {% csrf_token %}
@@ -107,7 +107,28 @@ Wishlist modal for selecting or creating wishlists.
 
     <!-- Modal Action -->
     <div class="modal-action">
-      <label for="wishlist-modal-toggle" class="btn btn-neutral">Close</label>
+      <label for="wishlist-modal-toggle" class="btn btn-neutral" onclick="document.getElementById('wishlist-modal-toggle').checked = false; setTimeout(() => document.getElementById('wishlist-modal')?.remove(), 300);">Close</label>
     </div>
   </div>
 </div>
+
+<script>
+  // Close modal and remove from DOM when clicking outside or on X
+  document.getElementById('wishlist-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      document.getElementById('wishlist-modal-toggle').checked = false;
+      setTimeout(() => this.remove(), 300);
+    }
+  });
+
+  // Close button handler
+  document.querySelectorAll('#wishlist-modal .btn-sm').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const toggle = document.getElementById('wishlist-modal-toggle');
+      if (toggle) {
+        toggle.checked = false;
+        setTimeout(() => document.getElementById('wishlist-modal')?.remove(), 300);
+      }
+    });
+  });
+</script>
